@@ -1,0 +1,28 @@
+{
+  "name": "assignment-3-2-dor_marina",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SISE-Web-Development-Environments/assignment-3-2-dor_marina.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SISE-Web-Development-Environments/assignment-3-2-dor_marina/issues"
+  },
+  "homepage": "https://github.com/SISE-Web-Development-Environments/assignment-3-2-dor_marina#readme",
+  "dependencies": {
+    "bcrypt": "^4.0.1",
+    "client-sessions": "^0.8.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "morgan": "^1.10.0",
+    "mssql": "^6.2.0"
+  }
+}
