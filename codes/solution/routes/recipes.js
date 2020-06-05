@@ -67,13 +67,11 @@ router.get('/get3RandomVer2', async(req, res,next) => {
 });
 
 //#region example1 - make serach endpoint
-router.get("/search/:searchQuery/:numOfRecipes",async(req, res, next)=>{
+router.get("/search/:searchQuery",async(req, res, next)=>{
   try{
     const Query=req.params.searchQuery;
-    const Num=req.params.numOfRecipes;
     let parameters={};
     parameters.query=Query;
-    parameters.number=Num;
     parameters.instructionsRequired=true;
     parameters.apiKey=process.env.spooncular_apiKey;
     if(req.query["cuisine"]){
@@ -84,6 +82,12 @@ router.get("/search/:searchQuery/:numOfRecipes",async(req, res, next)=>{
     }
     if(req.query["intolerances"]){
       parameters.cuisine=req.query["intolerances"];
+    }
+    if(req.query["numOfRecipes"]){
+      parameters.number=req.query["numOfRecipes"];
+    }
+    else{
+      parameters.number=5;
     }
     const search_response = await axios.get(`${api_domain}/search`, {
       params: parameters
