@@ -3,6 +3,7 @@ var router = express.Router();
 const axios = require("axios");
 
 const api_domain = "https://api.spoonacular.com/recipes";
+const apiKey="fac92578114e4448951e41d45f36a575";
 
 router.get("/", (req, res) => res.send("im here"));
 
@@ -15,19 +16,13 @@ router.get("/Information", async (req, res, next) => {
   }
 });
 
-//#region example1 - make serach endpoint
-router.get("/search", async (req, res, next) => {
-  try {
-    const { query, cuisine, diet, intolerances, number } = req.query;
+router.get("/:searchQuery",async(req, res, next)=>{
+  try{
+    const Query=req.params;
     const search_response = await axios.get(`${api_domain}/search`, {
       params: {
-        query: query,
-        cuisine: cuisine,
-        diet: diet,
-        intolerances: intolerances,
-        number: number,
-        instructionsRequired: true,
-        apiKey: process.env.spooncular_apiKey
+        query: Query,
+        number:10
       }
     });
     let recipes = await Promise.all(
@@ -36,11 +31,40 @@ router.get("/search", async (req, res, next) => {
       )
     );
     recipes = recipes.map((recipe) => recipe.data);
-    res.send({ data: recipes });
-  } catch (error) {
+    res.send({title: recipes.title, image:recipes.image, timeToMake:recipes.readyInMinutes, popular:recipes.aggregateLikes, vegan:recipes.vegan, glutten:recipes.glutenFree })
+  }
+  catch(error){
     next(error);
   }
 });
+
+//#region example1 - make serach endpoint
+// router.get("/search", async (req, res, next) => {
+//   try {
+//     const { query, cuisine, diet, intolerances, number } = req.query;
+//     const search_response = await axios.get(`${api_domain}/search`, {
+//       params: {
+//         query: query,
+//         cuisine: cuisine,
+//         diet: diet,
+//         intolerances: intolerances,
+//         number: number,
+//         instructionsRequired: true,
+//         apiKey: process.env.spooncular_apiKey
+//       }
+//     });
+//     let recipes = await Promise.all(
+//       search_response.data.results.map((recipe_raw) =>
+//         getRecipeInfo(recipe_raw.id)
+//       )
+//     );
+//     recipes = recipes.map((recipe) => recipe.data);
+//     res.send({ data: recipes });  } catch (error) {
+//     next(error);
+//   }
+// });
+
+
 //#endregion
 
 function getRecipeInfo(id) {
