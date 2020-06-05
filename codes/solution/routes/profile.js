@@ -2,13 +2,13 @@ var express = require("express");
 var router = express.Router();
 const DButils = require("../../modules/DButils");
 
-router.use(function requireLogin(req, res, next) {
-  if (!req.user_id) {
-    next({ status: 401, message: "unauthorized" });
-  } else {
-    next();
-  }
-});
+// router.use(function requireLogin(req, res, next) {
+//   if (!req.username) {
+//     next({ status: 401, message: "unauthorized" });
+//   } else {
+//     next();
+//   }
+// });
 
 //#region global simple
 // router.use((req, res, next) => {
@@ -35,6 +35,32 @@ router.get("/favorites", function (req, res) {
 router.get("/personalRecipes", function (req, res) {
   res.send(req.originalUrl);
 });
+
+// router.post('/insertWatch', async (req, res,next) => {
+//   try{
+//   const users = await DButils.execQuery("SELECT username FROM recipesWatched");
+//   const recipes = await DButils.execQuery("")
+//   await DButils.execQuery(
+//     `INSERT INTO recipesWatched VALUES ('${req.body.username}','${req.body.recipe_id}')`
+//   );
+//   }
+//   catch(error){
+//     next(error);
+//   }
+// });
+
+router.get('/last3watched', async (req, res, next) => {
+  const watched = ( await DButils.execQuery( `SELECT TOP 3 * FROM recipesWatched WHERE username = '${req.body.username}' ORDER BY watched_at desc`)) 
+  let recipes=[];
+  let i=0;
+  while(i<3){
+    recipes[i] = ( await DButils.execQuery( `SELECT * FROM recipes WHERE recipe_id = '${watched[i].recipe_Watched}'`));
+    i++; 
+  }
+  res.send(recipes);
+})
+
+
 
 //#region example2 - make add Recipe endpoint
 

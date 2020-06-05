@@ -15,15 +15,78 @@ router.get("/Information", async (req, res, next) => {
     next(error);
   }
 });
-
-router.get("/:searchQuery",async(req, res, next)=>{
-  try{
-    const Query=req.params;
-    const search_response = await axios.get(`${api_domain}/search`, {
+router.get('/get3Random', async(req, res,next) => {
+  try {
+    const random_response = await axios.get(`${api_domain}/random`, {
       params: {
-        query: Query,
-        number:10
+        number : 3,
+        apiKey: process.env.spooncular_apiKey,
       }
+    });
+    let recipes = random_response.data.recipes;
+    recipes.map(async(recipe) => {
+      while (recipe.instructions === undefined) {
+        recipe = await axios.get(`${api_domain}/random`,  {
+          params: {
+            number: 1,
+            apiKey: process.env.spooncular_apiKey,
+          },
+        });
+        recipe = recipe.data.recipes[0];
+      }
+    });
+    const info_recipes = recipes.map((recipe) => {
+        return getPreveuInfo(recipe);
+      });
+    res.send({info_recipes});
+
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/get3RandomVer2', async(req, res,next) => {
+  try {
+    const random_response = await axios.get(`${api_domain}/random`, {
+      params: {
+        number : 3,
+        apiKey: process.env.spooncular_apiKey,
+      }
+    });
+    let recipes = await Promise.all(
+      random_response.data.recipes.map((recipe_raw) =>
+        getRecipeInfo(recipe_raw.id)
+      )
+    );
+    recipes = recipes.map((recipe) => recipe.data);
+    res.send({ data: recipes });
+
+  } catch (error) {
+    next(error);
+  }
+});
+
+//#region example1 - make serach endpoint
+router.get("/search/:searchQuery/:numOfRecipes",async(req, res, next)=>{
+  try{
+    const Query=req.params.searchQuery;
+    const Num=req.params.numOfRecipes;
+    let parameters={};
+    parameters.query=Query;
+    parameters.number=Num;
+    parameters.instructionsRequired=true;
+    parameters.apiKey=process.env.spooncular_apiKey;
+    if(req.query["cuisine"]){
+      parameters.cuisine=req.query["cuisine"];
+    }
+    if(req.query["diet"]){
+      parameters.cuisine=req.query["diet"];
+    }
+    if(req.query["intolerances"]){
+      parameters.cuisine=req.query["intolerances"];
+    }
+    const search_response = await axios.get(`${api_domain}/search`, {
+      params: parameters
     });
     let recipes = await Promise.all(
       search_response.data.results.map((recipe_raw) =>
@@ -31,7 +94,10 @@ router.get("/:searchQuery",async(req, res, next)=>{
       )
     );
     recipes = recipes.map((recipe) => recipe.data);
-    res.send({title: recipes.title, image:recipes.image, timeToMake:recipes.readyInMinutes, popular:recipes.aggregateLikes, vegan:recipes.vegan, glutten:recipes.glutenFree })
+    const info_recipes = recipes.map((recipe) => {
+      return getPreveuInfo(recipe);
+    });
+    res.send({info_recipes});
   }
   catch(error){
     next(error);
@@ -75,5 +141,19 @@ function getRecipeInfo(id) {
     }
   });
 }
+function getPreveuInfo(recipe) {
+  return {
+    id: recipe.id,
+    image: recipe.image,
+    title: recipe.title,
+    vegetarian: recipe.vegetarian,
+    vegan: recipe.vegan,
+    glutenFree: recipe.glutenFree,
+    like: recipe.aggregateLikes,
+    readyInMinutes: recipe.readyInMinutes,
+  };
+}
+
+
 
 module.exports = router;
