@@ -6,6 +6,7 @@
     "configurations": [
 
         {
+            "runtimeExecutable": "C:/Program Files/nodejs/node.exe",
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
