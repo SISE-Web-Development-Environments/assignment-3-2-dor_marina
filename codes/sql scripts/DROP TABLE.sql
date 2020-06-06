@@ -1,1 +1,1 @@
-DROP TABLE recipesWatched
+DROP TABLE FavoritesRecipes

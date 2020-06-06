@@ -19,8 +19,9 @@ router.post("/Register", async (req, res, next) => {
       parseInt(process.env.bcrypt_saltRounds)
     );
     await DButils.execQuery(
-      `INSERT INTO users VALUES (default, '${req.body.username}', '${hash_password}', '${req.body.firstName}','${req.body.lastName}',
-      '${req.body.Email}', '${req.body.Country}', '${req.body.image}')`
+      `INSERT INTO users (username,password,FirstName,LastName,Email,Country,Image)
+       VALUES ('${req.body.username}', '${hash_password}', '${req.body.FirstName}','${req.body.LastName}',
+      '${req.body.Email}', '${req.body.Country}','${req.body.image}')`
     );
     res.status(201).send({ message: "user created", success: true });
   } catch (error) {
@@ -43,7 +44,7 @@ router.post("/Login", async (req, res, next) => {
     )[0];
 
     if (!bcrypt.compareSync(req.body.password, user.password)) {
-      throw { status: 401, message: "Username or Password incorrect" };
+      throw { status: 401, message: "Password incorrect" };
     }
 
     // Set cookie

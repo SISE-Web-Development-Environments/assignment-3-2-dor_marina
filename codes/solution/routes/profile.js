@@ -50,18 +50,41 @@ router.get("/personalRecipes", function (req, res) {
 // });
 
 router.get('/last3watched', async (req, res, next) => {
-  const watched = ( await DButils.execQuery( `SELECT TOP 3 * FROM recipesWatched WHERE username = '${req.body.username}' ORDER BY watched_at desc`)) 
+  try{
+  const watched = ( await DButils.execQuery( `SELECT TOP 3 * FROM recipesWatched WHERE user_id = '${req.session.user_id}' ORDER BY watched_at desc`)) 
+  if(watched.length ===0){
+    res.status(401).send("there is no recipes watched by this user");
+  }
   let recipes=[];
   let i=0;
-  while(i<3){
+  while(i<watched.length){
     recipes[i] = ( await DButils.execQuery( `SELECT * FROM recipes WHERE recipe_id = '${watched[i].recipe_Watched}'`));
     i++; 
   }
-  res.send(recipes);
-})
+  res.status(200).send(recipes);
+  }
+  catch(error){
+    next(error)
+  }
+});
 
-
-
+router.post('/addFavorite',async (req,res,next) =>{
+try{
+  let ext = (await DButils.execQuery(`SELECT * FROM recipes WHERE recipe_id = '${req.body.recipe_id}'`));
+  let isExt =0;
+  if(ext.length ===0){
+    isExt = 1;
+  }
+  await DButils.execQuery(
+    `INSERT INTO FavoriteRecipes
+     VALUES ('${req.session.user_id}','${req.body.recipe_id}', '${isExt}')`
+  );
+  res.status(201).send({ message: "favotite added", success: true });
+}
+catch(error){
+  next(error)
+}
+});
 //#region example2 - make add Recipe endpoint
 
 //#region complex
