@@ -4,17 +4,22 @@ const axios = require("axios");
 const DButils = require("../../modules/DButils");
 
 const api_domain = "https://api.spoonacular.com/recipes";
+const apiKey="fac92578114e4448951e41d45f36a575";
 
 
-router.get("/Information", async (req, res, next) => {
+router.get("/Information/:recipeID", async (req, res, next) => {
   try {
-    const recipe = await getRecipeInfo(req.query.recipe_id);
-    res.send({ data: recipe.data });
+    const recipe_id=req.params.recipeID;
+    const recipe = await getRecipeInfo(recipe_id);
+    const info_recipe=getPreveuInfo(recipe.data);
+    info_recipe.ingredients=recipe.data.extendedIngredients;
+    info_recipe.instructions=recipe.data.instructions;
+    info_recipe.servings=recipe.data.servings;
+    res.send({ data: info_recipe });
   } catch (error) {
     next(error);
   }
 });
-
 router.get('/get3Random', async(req, res,next) => {
   try {
     const random_response = await axios.get(`${api_domain}/random`, {
@@ -67,19 +72,30 @@ router.get('/get3RandomVer2', async(req, res,next) => {
 });
 
 //#region example1 - make serach endpoint
-router.get("/search", async (req, res, next) => {
-  try {
-    const { query, cuisine, diet, intolerances, number } = req.query;
+router.get("/search/:searchQuery",async(req, res, next)=>{
+  try{
+    const Query=req.params.searchQuery;
+    let parameters={};
+    parameters.query=Query;
+    parameters.instructionsRequired=true;
+    parameters.apiKey=process.env.spooncular_apiKey;
+    if(req.query["cuisine"]){
+      parameters.cuisine=req.query["cuisine"];
+    }
+    if(req.query["diet"]){
+      parameters.cuisine=req.query["diet"];
+    }
+    if(req.query["intolerances"]){
+      parameters.cuisine=req.query["intolerances"];
+    }
+    if(req.query["numOfRecipes"]){
+      parameters.number=req.query["numOfRecipes"];
+    }
+    else{
+      parameters.number=5;
+    }
     const search_response = await axios.get(`${api_domain}/search`, {
-      params: {
-        query: query,
-        cuisine: cuisine,
-        diet: diet,
-        intolerances: intolerances,
-        number: number,
-        instructionsRequired: true,
-        apiKey: process.env.spooncular_apiKey
-      }
+      params: parameters
     });
     let recipes = await Promise.all(
       search_response.data.results.map((recipe_raw) =>
@@ -87,11 +103,43 @@ router.get("/search", async (req, res, next) => {
       )
     );
     recipes = recipes.map((recipe) => recipe.data);
-    res.send({ data: recipes });
-  } catch (error) {
+    const info_recipes = recipes.map((recipe) => {
+      return getPreveuInfo(recipe);
+    });
+    res.send({info_recipes});
+  }
+  catch(error){
     next(error);
   }
 });
+
+//#region example1 - make serach endpoint
+// router.get("/search", async (req, res, next) => {
+//   try {
+//     const { query, cuisine, diet, intolerances, number } = req.query;
+//     const search_response = await axios.get(`${api_domain}/search`, {
+//       params: {
+//         query: query,
+//         cuisine: cuisine,
+//         diet: diet,
+//         intolerances: intolerances,
+//         number: number,
+//         instructionsRequired: true,
+//         apiKey: process.env.spooncular_apiKey
+//       }
+//     });
+//     let recipes = await Promise.all(
+//       search_response.data.results.map((recipe_raw) =>
+//         getRecipeInfo(recipe_raw.id)
+//       )
+//     );
+//     recipes = recipes.map((recipe) => recipe.data);
+//     res.send({ data: recipes });  } catch (error) {
+//     next(error);
+//   }
+// });
+
+
 //#endregion
 router.get('/recipeByID', async (req, res, next) => {
   try{
