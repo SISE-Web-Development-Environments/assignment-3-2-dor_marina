@@ -1,5 +1,5 @@
 CREATE TABLE users(
-	[user_id] [UNIQUEIDENTIFIER] PRIMARY KEY NOT NULL default NEWID(),
+	[user_id] [int] IDENTITY(1,1) PRIMARY KEY NOT NULL,
 	[username] [varchar](30) NOT NULL UNIQUE,
 	[password] [varchar](300) NOT NULL,
     [FirstName][varchar](200) NOT NULL,

@@ -1,7 +1,8 @@
 CREATE TABLE recipesWatched(
-    username [varchar](30) NOT NULL,
-    recipe_Watched [UNIQUEIDENTIFIER] NOT NULL,
+    user_id [int] NOT NULL,
+    recipe_Watched [int] ,
+    is_external [bit] NOT NULL,
     watched_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, 
-    PRIMARY KEY (username,recipe_Watched),
-    FOREIGN KEY (username) REFERENCES users(username)
+    PRIMARY KEY (user_id,recipe_Watched),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
 )

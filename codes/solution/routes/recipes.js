@@ -1,10 +1,10 @@
 var express = require("express");
 var router = express.Router();
 const axios = require("axios");
+const DButils = require("../../modules/DButils");
 
 const api_domain = "https://api.spoonacular.com/recipes";
 
-router.get("/", (req, res) => res.send("im here"));
 
 router.get("/Information", async (req, res, next) => {
   try {
@@ -93,6 +93,21 @@ router.get("/search", async (req, res, next) => {
   }
 });
 //#endregion
+router.get('/recipeByID', async (req, res, next) => {
+  try{
+    let recipe = (await DButils.execQuery(`SELECT * FROM recipes WHERE recipe_id = '${req.body.recipe_id}'`))
+    if(recipe.length===0){
+      res.status(401).send("no recipe found");
+    }
+    else{
+      res.status(200).send(recipe);
+    }
+  }
+  catch(error){
+    next(error)
+  }
+});
+
 
 function getRecipeInfo(id) {
   return axios.get(`${api_domain}/${id}/information`, {
@@ -102,7 +117,10 @@ function getRecipeInfo(id) {
     }
   });
 }
+
 function getPreveuInfo(recipe) {
+  let watched = isWatched(recipe)
+  let favorite = isFavorite(recipe)
   return {
     id: recipe.id,
     image: recipe.image,
@@ -111,8 +129,19 @@ function getPreveuInfo(recipe) {
     vegan: recipe.vegan,
     glutenFree: recipe.glutenFree,
     like: recipe.aggregateLikes,
+    isWatched: watched,
+    isFavorite: favorite,
     readyInMinutes: recipe.readyInMinutes,
   };
+
+async function isWatched(recipe){
+  let watched = (await DButils.execQuery(`SELECT * FROM recipesWatched WHERE recipe_id= '${recipe.id}' AND user_id= '${}'`));
+  if(watched.length)
+}
+
+function isFavorite(recipe){
+
+}
 }
 
 
