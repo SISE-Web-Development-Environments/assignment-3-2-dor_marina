@@ -1,1 +1,1 @@
-DROP TABLE FavoritesRecipes
+DROP TABLE PersonalRecipes

@@ -20,7 +20,7 @@ router.get("/Information/:recipeID", async (req, res, next) => {
     next(error);
   }
 });
-router.get('/get3Random', async(req, res,next) => {
+router.get('/3Random', async(req, res,next) => {
   try {
     const random_response = await axios.get(`${api_domain}/random`, {
       params: {
@@ -43,7 +43,7 @@ router.get('/get3Random', async(req, res,next) => {
     const info_recipes = recipes.map((recipe) => {
         return getPreveuInfo(recipe);
       });
-    res.send({info_recipes});
+    res.status(200).send({info_recipes});
 
   } catch (error) {
     next(error);
@@ -182,10 +182,7 @@ function getPreveuInfo(recipe) {
     readyInMinutes: recipe.readyInMinutes,
   };
 
-async function isWatched(recipe){
-  let watched = (await DButils.execQuery(`SELECT * FROM recipesWatched WHERE recipe_id= '${recipe.id}' AND user_id= '${}'`));
-  if(watched.length)
-}
+
 
 function isFavorite(recipe){
 
