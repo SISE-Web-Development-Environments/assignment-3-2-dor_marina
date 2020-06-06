@@ -7,10 +7,15 @@ const apiKey="fac92578114e4448951e41d45f36a575";
 
 router.get("/", (req, res) => res.send("im here"));
 
-router.get("/Information", async (req, res, next) => {
+router.get("/Information/:recipeID", async (req, res, next) => {
   try {
-    const recipe = await getRecipeInfo(req.query.recipe_id);
-    res.send({ data: recipe.data });
+    const recipe_id=req.params.recipeID;
+    const recipe = await getRecipeInfo(recipe_id);
+    const info_recipe=getPreveuInfo(recipe.data);
+    info_recipe.ingredients=recipe.data.extendedIngredients;
+    info_recipe.instructions=recipe.data.instructions;
+    info_recipe.servings=recipe.data.servings;
+    res.send({ data: info_recipe });
   } catch (error) {
     next(error);
   }
