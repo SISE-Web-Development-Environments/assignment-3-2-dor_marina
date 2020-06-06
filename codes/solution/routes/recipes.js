@@ -161,6 +161,10 @@ function getPreveuInfo(recipe) {
     like: recipe.aggregateLikes,
     readyInMinutes: recipe.readyInMinutes,
   };
+
+  function didUserWatchedThisRecipe(id){
+    
+  }
 }
 
 
