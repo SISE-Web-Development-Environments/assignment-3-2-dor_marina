@@ -157,7 +157,7 @@ router.get("/search/:searchQuery",async(req, res, next)=>{
 //#endregion
 router.get('/recipeByID', async (req, res, next) => {
   try{
-    let recipe = (await DButils.execQuery(`SELECT * FROM recipes WHERE recipe_id = '${req.body.recipe_id}'`))
+    let recipe = (await DButils.execQuery(`SELECT * FROM PersonalRecipes WHERE recipe_id = '${req.body.recipe_id}'`))
     if(recipe.length===0){
       res.status(401).send("no recipe found");
     }

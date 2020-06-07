@@ -46,7 +46,7 @@ router.get('/familyRecipesWhole', async (req, res, next) => {
 
 router.get('/familyRecipesPreview', async (req, res, next) => {
   try{
-    const family = ( await DButils.execQuery( `SELECT (image,recipe_name,durationTime,vegetarian,vegan,gluten)
+    const family = ( await DButils.execQuery( `SELECT image,recipe_name,durationTime,vegetarian,vegan,gluten
     FROM FamilyRecipes WHERE user_id = '${req.session.user_id}'`)) 
     if(family.length ===0){
       res.status(401).send("there is no family recipes for this user");
@@ -62,12 +62,12 @@ router.get('/familyRecipesPreview', async (req, res, next) => {
 
 router.get('/personalRecipesWhole', async (req, res, next) => {
   try{
-    const personal = ( await DButils.execQuery( `SELECT * FROM recipes WHERE user_id = '${req.session.user_id}'`)) 
-    if(family.length ===0){
-      res.status(401).send("there is no family recipes for this user");
+    const personal = ( await DButils.execQuery( `SELECT * FROM PersonalRecipes WHERE user_id = '${req.session.user_id}'`)) 
+    if(personal.length ===0){
+      res.status(401).send("there is no personal recipes for this user");
     }
     else{
-      res.status(200).send(family);
+      res.status(200).send(personal);
     }
   }
   catch(error){
@@ -77,13 +77,13 @@ router.get('/personalRecipesWhole', async (req, res, next) => {
 
 router.get('/personalRecipesPreview', async (req, res, next) => {
   try{
-    const personal = ( await DButils.execQuery( `SELECT (image,recipe_name,durationTime,vegetarian,vegan,gluten)
-     FROM recipes WHERE user_id = '${req.session.user_id}'`)) 
-    if(family.length ===0){
-      res.status(401).send("there is no family recipes for this user");
+    const personal = ( await DButils.execQuery( `SELECT image,recipe_name,durationTime,vegetarian,vegan,gluten
+     FROM PersonalRecipes WHERE user_id = '${req.session.user_id}'`)) 
+    if(personal.length ===0){
+      res.status(401).send("there is no personal recipes for this user");
     }
     else{
-      res.status(200).send(family);
+      res.status(200).send(personal);
     }
   }
   catch(error){
