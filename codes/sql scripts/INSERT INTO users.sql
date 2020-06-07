@@ -1,2 +1,0 @@
-INSERT INTO users (username,password,FirstName,LastName,Email,Country,Image)
-VALUES('dor','5994471ABB01112AFCC18159F6CC74B4F511B99806DA59B3CAF5A9C173CACFC5','dor','elkabetz','botvi@post.bgu.ac.il','ISRAEL','img');

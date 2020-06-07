@@ -31,7 +31,7 @@ router.get("/Information/:recipeID", async (req, res, next) => {
     next(error);
   }
 });
-router.get('/get3Random', async(req, res,next) => {
+router.get('/3Random', async(req, res,next) => {
   try {
     const random_response = await axios.get(`${api_domain}/random`, {
       params: {
@@ -54,7 +54,7 @@ router.get('/get3Random', async(req, res,next) => {
     const info_recipes =await Promise.all(recipes.map((recipe) => {
         return getPreveuInfo(recipe,req);
       }));
-    res.send({info_recipes});
+      res.status(200).send({info_recipes});
 
   } catch (error) {
     next(error);
