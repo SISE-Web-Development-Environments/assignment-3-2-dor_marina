@@ -10,12 +10,23 @@ const apiKey="fac92578114e4448951e41d45f36a575";
 router.get("/Information/:recipeID", async (req, res, next) => {
   try {
     const recipe_id=req.params.recipeID;
-    const recipe = await getRecipeInfo(recipe_id);
-    const info_recipe=getPreveuInfo(recipe.data);
+    let recipe;
+    try{
+    recipe = await getRecipeInfo(recipe_id);
+    } catch(error){
+      if(error.response.status==404){
+        throw { status: 404, message: "recipe not found" };
+      }
+      throw(error);
+    }
+    const info_recipe=await getPreveuInfo(recipe.data,req);
     info_recipe.ingredients=recipe.data.extendedIngredients;
     info_recipe.instructions=recipe.data.instructions;
     info_recipe.servings=recipe.data.servings;
-    res.send({ data: info_recipe });
+    res.status(200).send({ data: info_recipe });
+    if(req.user_id){
+      DButils.execQuery(`INSERT INTO recipesWatched VALUES (${req.user_id},${info_recipe.id},DEFAULT)`);
+    }
   } catch (error) {
     next(error);
   }
@@ -40,9 +51,9 @@ router.get('/get3Random', async(req, res,next) => {
         recipe = recipe.data.recipes[0];
       }
     });
-    const info_recipes = recipes.map((recipe) => {
-        return getPreveuInfo(recipe);
-      });
+    const info_recipes =await Promise.all(recipes.map((recipe) => {
+        return getPreveuInfo(recipe,req);
+      }));
     res.send({info_recipes});
 
   } catch (error) {
@@ -97,16 +108,19 @@ router.get("/search/:searchQuery",async(req, res, next)=>{
     const search_response = await axios.get(`${api_domain}/search`, {
       params: parameters
     });
+    if(search_response.data.results.length==0){
+      throw { status: 404, message: "No recipes found" };
+    }
     let recipes = await Promise.all(
       search_response.data.results.map((recipe_raw) =>
         getRecipeInfo(recipe_raw.id)
       )
     );
     recipes = recipes.map((recipe) => recipe.data);
-    const info_recipes = recipes.map((recipe) => {
-      return getPreveuInfo(recipe);
-    });
-    res.send({info_recipes});
+    const info_recipes = await Promise.all(recipes.map((recipe) => {
+      return getPreveuInfo(recipe,req);
+    }));
+    res.status(200).send({info_recipes});
   }
   catch(error){
     next(error);
@@ -166,10 +180,8 @@ function getRecipeInfo(id) {
   });
 }
 
-function getPreveuInfo(recipe) {
-  let watched = isWatched(recipe)
-  let favorite = isFavorite(recipe)
-  return {
+async function getPreveuInfo(recipe, req) {
+  const preveu= {
     id: recipe.id,
     image: recipe.image,
     title: recipe.title,
@@ -177,16 +189,34 @@ function getPreveuInfo(recipe) {
     vegan: recipe.vegan,
     glutenFree: recipe.glutenFree,
     like: recipe.aggregateLikes,
-    isWatched: watched,
-    isFavorite: favorite,
     readyInMinutes: recipe.readyInMinutes,
   };
-
-async function isWatched(recipe){
+  if(req.user_id){
+    let watched = await isWatched(recipe,req)
+    let favorite = await isFavorite(recipe,req)
+    preveu.watched=watched;
+    preveu.favorite=favorite;
+  }
+  return preveu;
+}
+async function isWatched(recipe,req){
+  let isWatched = await DButils.execQuery(`SELECT * FROM recipesWatched WHERE recipe_Watched = ${recipe.id} AND user_id=${req.user_id}`);
+  if(isWatched.length==0){
+    return false;
+  }
+  else{
+    return true;
+  }
 }
 
-function isFavorite(recipe){
-}
+async function isFavorite(recipe,req){
+  let isFavorite=await DButils.execQuery(`SELECT * FROM FavoritesRecipes WHERE recipe_id = ${recipe.id} AND user_id=${req.user_id}`);
+  if(isFavorite.length==0){
+    return false;
+  }
+  else{
+    return true;
+  }
 }
 
 
