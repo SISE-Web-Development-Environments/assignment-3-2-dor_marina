@@ -6,6 +6,31 @@ const DButils = require("../../modules/DButils");
 const api_domain = "https://api.spoonacular.com/recipes";
 const apiKey="fac92578114e4448951e41d45f36a575";
 
+router.post("/addToFavorites", async (req, res, next) => {
+  try{
+    if(req.user_id){
+      const users = await DButils.execQuery("SELECT user_id FROM users");
+      if (!users.find((x) => x.user_id === req.user_id)){
+        throw { status: 401, message: "Unauthorized user" };
+      }
+      try{
+        await getRecipeInfo(req.body.recipe_id);
+        } catch(error){
+          if(error.response.status==404){
+            throw { status: 404, message: "recipe not found" };
+          }
+        }
+      DButils.execQuery(`INSERT INTO FavoritesRecipes VALUES (${req.user_id},${req.body.recipe_id})`);
+      res.status(200).send({ message: "Recipe added to favorites successfully", success: true });
+    }
+    else{
+      throw { status: 401, message: "Guests cannot add recipes to favourites" };
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 
 router.get("/Information/:recipeID", async (req, res, next) => {
   try {
