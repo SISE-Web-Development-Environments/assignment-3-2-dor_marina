@@ -1,1 +1,1 @@
-DROP TABLE PersonalRecipes
+DROP TABLE FamilyRecipes

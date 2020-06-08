@@ -8,11 +8,11 @@ CREATE TABLE FamilyRecipes(
 	[vegetarian][bit] NOT NULL,
 	[vegan][bit] NOT NULL ,
 	[gluten][bit] NOT NULL ,
-	[ingredients][varchar] NOT NULL,
-	[instructions][varchar]NOT NULL,
+	[ingredients][varchar] (5000)NOT NULL,
+	[instructions][varchar] (5000)NOT NULL,
 	[portions][int] NOT NULL,
-	[usually_prepared][varchar] NOT NULL,
-	[main_country][varchar] NOT NULL,
+	[usually_prepared][varchar](300) NOT NULL,
+	[main_country][varchar](30) NOT NULL,
 	PRIMARY KEY (recipe_id),
 	FOREIGN KEY ([user_id]) REFERENCES users([user_id])
 )
