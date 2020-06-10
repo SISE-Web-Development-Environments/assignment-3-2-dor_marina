@@ -187,7 +187,7 @@ paths:
         style: form
         explode: true
         schema:
-          type: string
+          type: integer
       - name: intolerances
         in: query
         required: false
@@ -243,11 +243,11 @@ paths:
       description: get recipes by recipe name and return properties about it
       parameters:
       - name: recipeid
-        in: query
+        in: path
         description: The id of the recipe
         required: true
-        style: form
-        explode: true
+        style: simple
+        explode: false
         schema:
           type: string
       responses:
