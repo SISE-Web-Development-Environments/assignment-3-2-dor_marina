@@ -1,6 +1,6 @@
 INSERT INTO FamilyRecipes ([user_id],author,recipe_name,durationTime,[image],vegetarian,vegan,gluten,ingredients,instructions,portions,usually_prepared,main_country)
 VALUES(5,'Antonina Botvinnik',
-'Draniki',
+'https://res.cloudinary.com/dnbh9xw8s/image/upload/v1591734813/Marina%20Family/draniki.jpg',
 20,
 'image',
 1,0,0,
