@@ -1,4 +1,4 @@
-# assignment3.1 - Marina Botvinnik and Dor Elkabetz
+# assignment3.2 - Marina Botvinnik and Dor Elkabetz
 
 ## API - fixed
 * [Link to API](https://app.swaggerhub.com/apis-docs/MarinaBotvinnik/API_3.1/1.0.0#/)
