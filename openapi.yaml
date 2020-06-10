@@ -1,0 +1,423 @@
+openapi: 3.0.3
+info:
+  title: Recipes From Gramma and Others
+  description: |
+    This is a service for recipes for everyone.
+  contact:
+    email: botvimar@post.bgu.ac.il
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/MarinaBotvinnik/API_3.1/1.0.0
+  description: SwaggerHub API Auto Mocking
+- url: http://localhost:3000
+  description: localhost
+tags:
+- name: user
+  description: every operation needed for the user
+- name: recipe
+  description: every operation needed for the recipe
+- name: profile
+  description: every operation needed for the logged in user
+paths:
+  /user/Register:
+    post:
+      tags:
+      - user
+      summary: Register a new user
+      description: If the user come to the site for the first time - he needs to register
+      requestBody:
+        description: Inventory item to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/newUser'
+      responses:
+        "201":
+          description: A new user has been added
+        "409":
+          description: Username taken
+  /user/Login:
+    post:
+      tags:
+      - user
+      summary: Login a user
+      description: user will login to the website using username and password
+      parameters:
+      - name: username
+        in: query
+        description: user name for login to website
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: password
+        in: query
+        description: the password for login to website
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: |
+            User authenitcated successfuly The session ID is returned in a cookie named 'session'. You need to include this cookie in subsequent requests
+          headers:
+            Set-Cookie:
+              style: simple
+              explode: false
+              schema:
+                type: string
+                example: session=87s97sdhgf279293f8w0e9
+        "401":
+          description: Authentication failed
+  /user/Logout:
+    post:
+      tags:
+      - user
+      summary: log out the user that currently logged in
+      parameters: []
+      responses:
+        default:
+          description: the user successfuly logged out
+  /profile/last3Watched:
+    get:
+      tags:
+      - profile
+      summary: return 3 last recipes
+      description: user gets the 3 last recipes he watched
+      responses:
+        "200":
+          description: 3 recipes with thier details
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/recipePreview'
+        "401":
+          description: there is no recipes watched by this user
+  /profile/familyRecipesWhole:
+    get:
+      tags:
+      - profile
+      summary: family recipes of the user (Whole version)
+      description: user gets all his family recipes
+      responses:
+        "200":
+          description: family recipes with their details
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/recipePreview'
+        "401":
+          description: there is no family recipes yet
+  /profile/familyRecipesPreview:
+    get:
+      tags:
+      - profile
+      summary: family recipes of the user (Preview Version)
+      description: user gets all his family recipes
+      responses:
+        "200":
+          description: family recipes with their details
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/recipePreview'
+        "401":
+          description: there is no family recipes yet
+  /profile/personalRecipesPreview:
+    get:
+      tags:
+      - profile
+      summary: personal recipes of the user (Preview Version)
+      description: user gets all his family recipes
+      responses:
+        "200":
+          description: family recipes with their details
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/recipePreview'
+        "401":
+          description: there is no personal recipes yet
+  /profile/personalRecipesWhole:
+    get:
+      tags:
+      - profile
+      summary: personal recipes of the user (Whole Version)
+      description: user gets all his family recipes
+      responses:
+        "200":
+          description: family recipes with their details
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/recipePreview'
+        "401":
+          description: there is no personal recipes yet
+  /recipe/search/query/{searchQuery}:
+    get:
+      tags:
+      - recipe
+      summary: search a recipe
+      description: choose options as you desire, and search for previews for recipes
+      parameters:
+      - name: searchQuery
+        in: path
+        description: search for recipes in a query given
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: numOfRecipes
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      - name: intolerances
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: cuisine
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: diet
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: recipes with their preview details
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/recipePreview'
+        "404":
+          description: No recipes found
+  /recipe/3Random:
+    get:
+      tags:
+      - recipe
+      summary: gets three random recipes
+      description: gets the user 3 random recipes
+      responses:
+        "200":
+          description: details about three random recipes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/recipePreview'
+  /recipe/recipeByID:
+    get:
+      tags:
+      - recipe
+      summary: get recipes by recipe name
+      description: get recipes by recipe name and return properties about it
+      parameters:
+      - name: recipeid
+        in: path
+        description: The id of the recipe
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: recipe properties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/recipePreview'
+        "404":
+          description: no recipes with this name
+  /recipe/Information/{recipeID}:
+    get:
+      tags:
+      - recipe
+      summary: get recipe by information by ID
+      description: get recipe by ID and return information about it
+      parameters:
+      - name: recipeID
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: the recipe preview information with extra details for preperation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/recipeInfo'
+        "404":
+          description: Recipe not found
+  /recipe/addToFavorites:
+    post:
+      tags:
+      - recipe
+      summary: add recipe to user favorites
+      description: get recipe by ID and adds it to the user favorites
+      requestBody:
+        description: Inventory item to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/favoriteRecip'
+      responses:
+        "200":
+          description: Recipe added to favorites successfully
+        "401":
+          description: Unauthorized user
+        "404":
+          description: recipe not found
+components:
+  schemas:
+    favoriteRecip:
+      type: object
+      properties:
+        recipe_id:
+          type: string
+      example:
+        recipe_id: 1232
+    newUser:
+      type: object
+      properties:
+        username:
+          maxLength: 8
+          minLength: 3
+          pattern: '[A-Za-z]'
+          type: string
+        FirstName:
+          type: string
+        LastName:
+          type: string
+        Country:
+          type: string
+        password:
+          maxLength: 10
+          minLength: 5
+          type: string
+        Email:
+          type: string
+        image:
+          type: string
+      example:
+        username: MarBot
+        Firstname: Marina
+        LastName: Botvinnik
+        Country: Israel
+        password: 123Mar!
+        Email: botvimar@post.bgu.ac.il
+        image: link
+    recipePreview:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        image:
+          type: string
+        timeToMake:
+          type: integer
+        popular:
+          type: integer
+        vegetarian:
+          type: boolean
+        vegan:
+          type: boolean
+        glutten:
+          type: boolean
+        watched:
+          type: boolean
+        saved:
+          type: boolean
+      example:
+        id: 6
+        title: Cake
+        image: image
+        timeToMake: 30
+        popular: 5
+        vegetarian: true
+        vegan: false
+        glutten: true
+        watched: false
+        saved: true
+    recipeInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        image:
+          type: string
+        timeToMake:
+          type: integer
+        popular:
+          type: integer
+        vegetarian:
+          type: boolean
+        vegan:
+          type: boolean
+        glutten:
+          type: boolean
+        watched:
+          type: boolean
+        saved:
+          type: boolean
+        ingredients:
+          type: string
+        instructions:
+          type: string
+        servings:
+          type: integer
+      example:
+        id: 6
+        title: Cake
+        image: image
+        timeToMake: 30
+        popular: 5
+        vegetarian: true
+        vegan: false
+        glutten: true
+        watched: false
+        saved: true
+        ingredients: ingredients
+        instructions: instructions
+        servings: 4
