@@ -20,8 +20,14 @@ router.post("/addToFavorites", async (req, res, next) => {
             throw { status: 404, message: "recipe not found" };
           }
         }
-      DButils.execQuery(`INSERT INTO FavoritesRecipes VALUES (${req.user_id},${req.body.recipe_id})`);
-      res.status(200).send({ message: "Recipe added to favorites successfully", success: true });
+        let dupCheck = (await DButils.execQuery(`SELECT * FROM FavoritesRecipes WHERE recipe_id = '${req.body.recipe_id}' AND user_id='${req.user_id}'`))
+        if(dupCheck.length!=0){
+          res.status(401).send("this recipe is already a favourite");
+        }
+        else{
+          DButils.execQuery(`INSERT INTO FavoritesRecipes VALUES (${req.user_id},${req.body.recipe_id})`);
+          res.status(200).send({ message: "Recipe added to favorites successfully", success: true });
+        }
     }
     else{
       throw { status: 401, message: "Guests cannot add recipes to favourites" };
@@ -50,7 +56,10 @@ router.get("/Information/:recipeID", async (req, res, next) => {
     info_recipe.servings=recipe.data.servings;
     res.status(200).send({ data: info_recipe });
     if(req.user_id){
-      DButils.execQuery(`INSERT INTO recipesWatched VALUES (${req.user_id},${info_recipe.id},DEFAULT)`);
+      let dupCheck = (await DButils.execQuery(`SELECT * FROM recipesWatched WHERE recipe_Watched = '${info_recipe.id}' AND user_id='${req.user_id}'`));
+      if(dupCheck.length===0){
+        DButils.execQuery(`INSERT INTO recipesWatched VALUES (${req.user_id},${info_recipe.id},DEFAULT)`);
+      }
     }
   } catch (error) {
     next(error);
@@ -108,7 +117,7 @@ router.get('/get3RandomVer2', async(req, res,next) => {
 });
 
 //#region example1 - make serach endpoint
-router.get("/search/:searchQuery",async(req, res, next)=>{
+router.get("/search/query/:searchQuery",async(req, res, next)=>{
   try{
     const Query=req.params.searchQuery;
     let parameters={};
